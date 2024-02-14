@@ -1,5 +1,6 @@
 import DetailsPage from "@/components/templates/DetailsPage";
 import { useRouter } from "next/router";
+import { useState } from "react";
 
 export default function Details({ data }) {
   const router = useRouter();
@@ -7,6 +8,7 @@ export default function Details({ data }) {
   if (router.isFallback) {
     return <h2>Loading Page...</h2>;
   }
+
   return <DetailsPage {...data} />;
 }
 
@@ -21,7 +23,7 @@ export async function getStaticPaths() {
 
   return {
     paths,
-    fallback: true,
+    fallback: "blocking",
   };
 }
 
@@ -30,16 +32,20 @@ export async function getStaticProps(context) {
     params: { id },
   } = context;
   const res = await fetch(`${process.env.BASE_URL}/data/${id}`);
-  const data = await res.json();
-
-  if (!data.id) {
+  if (res.status === 200) {
+    const data = await res.json();
+    if (!data.name) {
+      return {
+        notFound: true,
+      };
+    }
+    return {
+      props: { data },
+      revalidate: +process.env.REVALIDATE,
+    };
+  } else {
     return {
       notFound: true,
     };
   }
-
-  return {
-    props: { data },
-    revalidate: +process.env.REVALIDATE,
-  };
 }
