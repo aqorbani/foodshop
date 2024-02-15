@@ -32,20 +32,31 @@ export async function getStaticProps(context) {
     params: { id },
   } = context;
   const res = await fetch(`${process.env.BASE_URL}/data/${id}`);
-  if (res.status === 200) {
-    const data = await res.json();
-    if (!data.name) {
-      return {
-        notFound: true,
-      };
-    }
-    return {
-      props: { data },
-      revalidate: +process.env.REVALIDATE,
-    };
-  } else {
+  // if (res.status === 200) {
+  //   const data = await res.json();
+  //   if (!data.name) {
+  //     return {
+  //       notFound: true,
+  //     };
+  //   }
+  //   return {
+  //     props: { data },
+  //     revalidate: +process.env.REVALIDATE,
+  //   };
+  // } else {
+  //   return {
+  //     notFound: true,
+  //   };
+  // }
+
+  const data = await res.json();
+  if (!data.name) {
     return {
       notFound: true,
     };
   }
+  return {
+    props: { data },
+    revalidate: +process.env.REVALIDATE,
+  };
 }
